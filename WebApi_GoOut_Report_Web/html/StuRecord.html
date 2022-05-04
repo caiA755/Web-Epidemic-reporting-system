@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>外出报备记录</title>
+    <link rel="stylesheet" href="../css/layui.css" />
+    <link rel="stylesheet" href="../css/common.css" />
+    <script src="../js/layui.js"></script>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+</head>
+<style>
+    .layui-table {
+        width: 900px;
+    }
+    /* .layui-table th {
+        width: 100px;
+    } */
+</style>
+
+<body>
+    <blockquote class="layui-elem-quote" style="text-align:center;font-size: 18px;color: white;background: rgb(114, 196, 223);;">
+        外出报备记录
+    </blockquote>
+    <div class="layui-container">
+        <div class="layui-input-block" style="margin-left:-28px">
+            <form method="post" id="myform">
+                <div class="layui-inline">
+                    <label class="layui-form-label">开始时间：</label>
+                    <div class="layui-input-inline">
+                        <input type="datetime-local" style="width: 130px;" name="StartTime" id="StartTime" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">结束时间：</label>
+                    <div class="layui-input-inline">
+                        <input type="datetime-local" style="width: 130px;" name="EndTime" id="EndTime" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <input name="TID" id="tID" style="display: none;" />
+                </div>
+                <div class="layui-inline">
+                    <input class="layui-btn layui-btn-normal" type="button" id="btnTime" style="margin-left:2px;width: 50px;padding-left: 10px;" value="查询" />
+                </div>
+            </form>
+            <button style="margin-left: 20px;width: 100px;margin-top: 10px;" class="layui-btn layui-btn-normal" id="btnReturn" style="margin-left:2px;width: 50px;padding-left: 10px;" data-type="getCheckData">返回</button>
+        </div>
+        <table id="mytable">
+        </table>
+    </div>
+</body>
+
+</html>
+
+<script>
+    $(function() {
+        var demoInfo;
+        if (window.localStorage) { //存储变量的值 
+            var teacherid = localStorage.getItem("myteacherid");
+            //   alert(teacherid)
+            //     alert(userid);
+            $.ajax({
+                url: 'https://localhost:44348/api/Records/getSelfRecordByTid?TID=' + teacherid,
+                type: 'get',
+                async: false,
+                contentType: 'application/x-www-form-urlencoded',
+                success: function(result) {
+                    console.log(result);
+                    demoInfo = {
+                        selector: "mytable",
+                        pagesize: 5,
+                        pageno: 1,
+                    };
+                    console.log(demoInfo);
+                    createTable(demoInfo, result);
+                }
+            });
+            //  alert(teacherid);
+            $("input[name='TID']").val(teacherid);
+            $("#btnTime").click(function() {
+                var form = $("#myform");
+                var formdata = form.serializeArray();
+                $.ajax({
+                    url: 'https://localhost:44348/api/Records/outRecordsBytime',
+                    type: 'post',
+                    contentType: 'application/x-www-form-urlencoded',
+                    data: formdata,
+                    success: function(result) {
+                        console.log(result);
+                        demoInfo = {
+                            selector: "mytable",
+                            pagesize: 5,
+                            pageno: 1,
+                        };
+                        console.log(demoInfo);
+                        createTable(demoInfo, result);
+                    }
+                });
+            })
+
+        } else {
+            alert("NOT SUPPORT LocalStorge!");
+            // window.location.href = "goOutRequest.html";
+        }
+        $("#btnReturn").click(function() {
+            history.go(-1)
+        })
+        $(document).on("click", '.btnOper', function(event) {
+            var index = $(this).parent().parent().children(0).html();
+            var status = $(this).parent().parent().find(".status").html();
+            if (status.trim() == "申请中") {
+                status = "0";
+            } else if (status.trim() == "已批审") {
+                status = "1";
+            } else if (status.trim() == "已回校") {
+                status = "2";
+            } else {
+                status = "3";
+            }
+            //    alert(status);
+            console.log("====");
+            //  console.log(index); //这个参数有问题有
+            $.get('https://localhost:44348/api/Records/changeStatus?SOID=' + index + "&Status=" + status, function(data) {
+                alert("数据: " + data + "\n状态: ");
+                $.ajax({
+                    url: 'https://localhost:44348/api/Records/getSelfRecordByTid?TID=' + teacherid,
+                    type: 'get',
+                    async: false,
+                    contentType: 'application/x-www-form-urlencoded',
+                    success: function(result) {
+                        console.log(result);
+                        demoInfo = {
+                            selector: "mytable",
+                            pagesize: 5,
+                            pageno: 1,
+                        };
+                        console.log(demoInfo);
+                        createTable(demoInfo, result);
+                    }
+                });
+            });
+            // $.ajax({
+            //     url: 'https://localhost:44348/api/Records/changeStatus?SOID=' + index + "&Status=" + status,
+            //     type: 'get',
+            //     async: true,
+            //     contentType: 'application/x-www-form-urlencoded',
+            //     success: function(result) {
+            //         alert(result)
+            //     }
+            // })
+        })
+    })
+
+    function createTable(demoInfo, data) {
+        var mytable = document.getElementById(demoInfo.selector);
+        console.log(demoInfo);
+        var endIndex = demoInfo.pagesize * demoInfo.pageno - 1;
+        var startIndex = endIndex - demoInfo.pagesize + 1;
+        var yu = data.length % demoInfo.pagesize;
+        var pagecount = parseInt(data.length / demoInfo.pagesize) + 1;
+        if (yu != 0 && demoInfo.pageno === pagecount) {
+            endIndex = demoInfo.pagesize * demoInfo.pageno - 1 - (5 - data.length % demoInfo.pagesize);
+        };
+        // var data = new Array();
+        // for (var z = startIndex; z <= endIndex; z++) {
+        //     data.push(demoInfo.data[z]);
+        // }
+        var tableContent = `<tr>
+                    <th>编号</th>
+                    <th>学生ID</th>
+                    <th>学生姓名</th>
+                    <th>专业</th>
+                    <th>班级</th>
+                    <th>请假原因</th>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>回复内容</th>
+                    <th>状态</th>
+                    <th>操作</th>
+             </tr>
+          `;
+        var oper = "同意申请";
+
+        for (var i = 0; i < data.length; i++) {
+            tableContent += `<td>${data[i].SOID}</td>
+            <td>${data[i].UID.UID}</td>
+            <td>${data[i].UID.Username}</td>
+            <td>${data[i].UID.ClassID.DeptName}<br/>${data[i].UID.ClassID.ClassType}</td>
+            <td>${data[i].UID.ClassID.ClassName}</td>
+                <td>${data[i].Reason}</td>    
+                <td style="width:200px">${data[i].StartTime}</td>
+                <td style="width:200px">${data[i].EndTime}</td>
+                <td>${data[i].ReplyText}</td>
+                <td><button class="layui-btn layui-btn-warm status"  style="height:40px;width:65px;padding-left:10px">${data[i].Status}</button></td>
+                `;
+            if (data[i].Status == "申请中") {
+                oper = "同意申请";
+                statusID = 1;
+                tableContent += `<td><button type="button" data="${statusID}"  class="layui-btn layui-btn-normal btnOper" style="height:40px;width:100px;margin-left:10px;margin-right:10px">${oper}</button></td>
+               `;
+            } else if (data[i].Status == "已审批") {
+                oper = "已回校";
+                statusID = 2;
+                tableContent += `<td><button  type="button" data="${statusID}"  class="layui-btn layui-btn-normal btnOper" style="height:40px;width:100px;margin-left:10px;margin-right:10px">${oper}</button></td>
+               `;
+            } else if (data[i].Status == "已回校") {
+                oper = "确认";
+                statusID = 3;
+                tableContent += `<td><button  type="button" data="${statusID}"  class="layui-btn layui-btn-normal btnOper" style="height:40px;width:100px;margin-left:10px;margin-right:10px">${oper}</button></td>
+               `;
+            } else if (data[i].Status == "已确认") {
+                oper = "已结束";
+                statusID = 4;
+                tableContent += `<td><button type="button" data="${statusID}"  class="layui-btn layui-btn-danger btnOper" disabled style="height:40px;width:100px;margin-left:10px;margin-right:10px">${oper}</button></td>
+                `;
+            }
+            //changeStatus
+            tableContent += "</tr>";
+
+        }
+        tableContent += `<tfoot>
+            <tr class="notHover">
+                <td colspan="11">
+                    |&lt;&nbsp;&nbsp;&lt;&lt;&nbsp;&nbsp;
+                    <label id="leftPage" onclick="reducePage()">&lt; </label>
+                    <input type="text" value="1" id="pageNum" /> 
+                    <label id="rightPage" onclick="addPage()">&gt; </label>
+                    &nbsp;&nbsp;&gt;&gt;&nbsp;&nbsp;&gt;|
+                </td>
+            </tr>
+        </tfoot>`;
+        mytable.innerHTML = tableContent;
+        document.getElementById("pageNum").value = demoInfo.pageno;
+        console.log(document.getElementById("pageNum").value);
+
+
+    }
+
+    function addPage() {
+        demoInfo.pageno++;
+        createTable(demoInfo);
+    }
+
+    function reducePage() {
+        if (demoInfo.pageno > 1) {
+            demoInfo.pageno--;
+            createTable(demoInfo);
+        }
+    }
+</script>
+
+<style>
+    @media screen and (max-width: 600px) {
+        .layui-table {
+            width: 500px;
+        }
+        /* .layui-table th {
+            width: 80px;
+        } */
+    }
+</style>
+<style>
+    #mytable {
+        border-spacing: 0px;
+        margin-top: 20px;
+    }
+    
+    td,
+    th {
+        border: 1px solid lightgray;
+        height: 38px;
+        width: 100px;
+        text-align: center;
+        border-style: solid;
+    }
+    
+    th {
+        background: white;
+        color: black;
+    }
+    
+    tr td {
+        height: 50px;
+        border: 1px solid lightgray;
+    }
+    /* tr:nth-child(2n) {
+        background: rgb(160, 160, 160);
+    } */
+</style>

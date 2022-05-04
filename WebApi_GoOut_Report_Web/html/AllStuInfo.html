@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>所有学生信息</title>
+    <link rel="stylesheet" href="../css/layui.css" />
+    <link rel="stylesheet" href="../css/common.css" />
+    <script src="../js/layui.js"></script>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <blockquote class="layui-elem-quote" style="text-align:center;font-size: 18px;color: white;background: rgb(114, 196, 223);;">
+        所有学生信息
+    </blockquote>
+    <div class="layui-container">
+        <div class="layui-input-block" style="margin-left:-28px">
+            <form method="post" id="myform">
+                <div class="layui-inline">
+                    <label class="layui-form-label">姓名：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" style="width: 130px;" name="StartTime" id="StartTime" lay-verify="date" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">班级：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" style="width: 130px;" name="EndTime" id="EndTime" lay-verify="date" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <input name="UID" id="userID" style="display: none;" />
+                </div>
+                <div class="layui-inline">
+                </div>
+            </form>
+            <input class="layui-btn layui-btn-normal" type="button" id="btnTime" style="margin-top:10px;margin-left:26px;width: 50px;padding-left: 10px;" value="查询" />
+            <button style="margin-left:2px;width: 50px;padding-left: 10px;margin-top:10px;" class="layui-btn layui-btn-normal" id="btnReturn" style="margin-left:2px;width: 50px;padding-left: 10px;" data-type="getCheckData">返回</button>
+
+        </div>
+        <table id="mytable">
+        </table>
+    </div>
+</body>
+
+</html>
+<script>
+    $(function() {
+            $("#btnReturn").click(function() {
+                history.go(-1)
+            });
+            //pagesize:每页显示多少条
+            //pageno: 当前所处的界面
+            //head: 头部标题
+            //data: 表格数据
+            var demoInfo;
+            if (window.localStorage) { //存储变量的值 
+                var teacherid = localStorage.getItem("myteacherid");
+                if (teacherid == null) {
+                    window.location.href = "error.html";
+                }
+                $.ajax({
+                    url: 'https://localhost:44348/api/User/UserList',
+                    type: 'post',
+                    contentType: 'application/x-www-form-urlencoded',
+                    success: function(result) {
+                        console.log(result);
+                        demoInfo = {
+                            selector: "mytable",
+                            pagesize: 5,
+                            pageno: 1,
+                        };
+                        console.log(demoInfo);
+                        createTable(demoInfo, result);
+                    }
+                });
+            } else {
+                alert("NOT SUPPORT LocalStorge!");
+                // window.location.href = "goOutRequest.html";
+            }
+
+            function createTable(demoInfo, data) {
+                var mytable = document.getElementById(demoInfo.selector);
+                console.log(demoInfo);
+                var endIndex = demoInfo.pagesize * demoInfo.pageno - 1;
+                var startIndex = endIndex - demoInfo.pagesize + 1;
+                var yu = data.length % demoInfo.pagesize;
+                var pagecount = parseInt(data.length / demoInfo.pagesize) + 1;
+                if (yu != 0 && demoInfo.pageno === pagecount) {
+                    endIndex = demoInfo.pagesize * demoInfo.pageno - 1 - (5 - data.length % demoInfo.pagesize);
+                };
+                // var data = new Array();
+                // for (var z = startIndex; z <= endIndex; z++) {
+                //     data.push(demoInfo.data[z]);
+                // }
+                var tableContent = `<tr>
+                    <th>账号</th>
+                    <th>姓名</th>
+                    <th>系部</th>
+                    <th>班级</th>
+                    <th>辅导员</th>
+                    <th>联系电话</th>
+                    <th>注册时间</th>
+                    <th></th>
+                    <th></th>
+             </tr>
+          `;
+                for (var i = 0; i < data.length; i++) {
+                    tableContent += `<td>${data[i].UID}</td>
+                <td>${data[i].Username}</td>
+                <td style="width:200px">${data[i].ClassID.DeptName}</td>
+                <td style="width:200px">${data[i].ClassID.ClassType}-${data[i].ClassID.ClassName}</td>
+                <td>${data[i].ClassID.TID.TeacherName}</td>
+                <td>${data[i].Phone}</td>
+                <td>${data[i].RegisterTime}</td>
+                <td><button class="layui-btn layui-btn-danger" style="height:40px;width:65px;padding-left:10px">删除</button></td>
+                <td><button class="layui-btn layui-btn-warm" style="height:40px;width:65px;padding-left:10px">编辑</button></td></tr>`
+                }
+                tableContent += `<tfoot>
+            <tr class="notHover">
+                <td colspan="11">
+                    |&lt;&nbsp;&nbsp;&lt;&lt;&nbsp;&nbsp;
+                    <label id="leftPage" onclick="reducePage()">&lt; </label>
+                    <input type="text" value="1" id="pageNum" /> 
+                    <label id="rightPage" onclick="addPage()">&gt; </label>
+                    &nbsp;&nbsp;&gt;&gt;&nbsp;&nbsp;&gt;|
+                </td>
+            </tr>
+        </tfoot>`;
+                mytable.innerHTML = tableContent;
+                document.getElementById("pageNum").value = demoInfo.pageno;
+                console.log(document.getElementById("pageNum").value);
+            }
+
+            function addPage() {
+                demoInfo.pageno++;
+                createTable(demoInfo);
+            }
+
+            function reducePage() {
+                if (demoInfo.pageno > 1) {
+                    demoInfo.pageno--;
+                    createTable(demoInfo);
+                }
+            }
+        })
+        // https://localhost:44348/api/User/UserList
+</script>
+<style>
+    #mytable {
+        border-spacing: 0px;
+        margin-top: 20px;
+    }
+    
+    td,
+    th {
+        border: 1px solid lightgray;
+        height: 38px;
+        width: 100px;
+        text-align: center;
+        border-style: solid;
+    }
+    
+    th {
+        background: white;
+        color: black;
+    }
+    
+    tr td {
+        height: 50px;
+        border: 1px solid lightgray;
+    }
+    /* tr:nth-child(2n) {
+        background: rgb(160, 160, 160);
+    } */
+</style>

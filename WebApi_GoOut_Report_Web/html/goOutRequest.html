@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/layui.css" />
+    <link rel="stylesheet" href="../css/common.css" />
+    <script src="../js/layui.js"></script>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <blockquote class="layui-elem-quote" style="text-align:center;font-size: 18px;color: white;background: rgb(114, 196, 223);;">
+        外出报备——信息提交
+    </blockquote>
+    <div class="layui-container">
+
+        <form class="layui-form" id="myform" method="post" style="margin-left: auto;margin-right: auto;width: 80%;">
+            <div class="layui-form-item" style="margin-left: -50px;">
+                <label class="layui-form-label">ID：</label>
+                <div class="layui-input-block">
+                    <input type="text" readonly name="UID" lay-verify="title" autocomplete="off" placeholder="1111" class="layui-input  layui-btn-disabled">
+                </div>
+            </div>
+            <div class="layui-form-item" style="margin-left: -50px;">
+                <label class="layui-form-label">姓名：</label>
+                <div class="layui-input-block">
+                    <input type="text" readonly name="UName" lay-verify="title" autocomplete="off" placeholder="王彩" class="layui-input  layui-btn-disabled">
+                </div>
+            </div>
+            <div class="layui-form-item" style="margin-left: -50px;display: none;">
+                <label class="layui-form-label">ID</label>
+                <div class="layui-input-block">
+                    <input type="text" readonly name="TID" lay-verify="title" autocomplete="off" placeholder="1111" class="layui-input  layui-btn-disabled">
+                </div>
+            </div>
+            <div class="layui-form-item" style="margin-left: -50px;">
+                <label class="layui-form-label">辅导员：</label>
+                <div class="layui-input-block">
+                    <input type="text" readonly name="TName" lay-verify="title" autocomplete="off" placeholder="王勤" class="layui-input  layui-btn-disabled">
+                </div>
+            </div>
+            <div class="layui-form-item" style="margin-left: -50px;">
+                <div class="layui-inline">
+                    <label class="layui-form-label">开始时间：</label>
+                    <div class="layui-input-inline">
+                        <input type="datetime-local" name="StartTime" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item" style="margin-left: -50px;">
+                <div class="layui-inline">
+                    <label class="layui-form-label">结束时间：</label>
+                    <div class="layui-input-inline">
+                        <input type="datetime-local" name="EndTime" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text" style="margin-left: -50px;">
+                <label class="layui-form-label">原因：</label>
+                <div class="layui-input-block">
+                    <textarea placeholder="请输入内容" name="Reason" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item" style="margin-left: -50px;">
+                <label class="layui-form-label"></label>
+                <input type="submit" id="submit" class="layui-btn layui-btn-warm" lay-submit="" value="提交" />
+                <input type="button" id="btnReturn" class="layui-btn layui-btn-normal" value="返回" />
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>
+<script>
+    $(function() {
+        $("#btnReturn").click(function() {
+            history.go(-1)
+        });
+        var myusername, myuserid, myteacher, myteacherid;
+        if (window.localStorage) { //存储变量的值 
+            myusername = localStorage.getItem("UserName");
+            myuserid = localStorage.getItem("ID");
+            myteacherid = localStorage.getItem("TID");
+            myteacher = localStorage.getItem("TeacherName");
+            $("input[name='UID']").val(myuserid);
+            $("input[name='UName']").val(myusername);
+            $("input[name='TID']").val(myteacherid);
+            $("input[name='TName']").val(myteacher);
+            //请假
+            //获取请假的相关信息
+
+            $("#submit").click(function() {
+                var form = $("#myform");
+                var formdata = form.serializeArray();
+                // alert($("input[name='startdate']").val());
+                if (($("input[name='StartTime']").val()) == "") {
+                    alert("开始时间不能为空！");
+                } else if (($("input[name='EndTime']").val()) == "") {
+                    alert("结束时间不能为空！");
+                } else if ($("input[name='StartTime']").val() >= $("input[name='EndTime']").val()) {
+                    alert("开始时间不能大于等于结束时间！");
+                } else if ($("textarea[name='Reason']").val() == "") {
+                    alert("原因不能为空！");
+                } else {
+                    //提交外出报备请求 
+                    $.ajax({
+                        url: 'https://localhost:44348/api/Records/InsertRecord',
+                        type: 'post',
+                        contentType: 'application/x-www-form-urlencoded',
+                        data: formdata,
+                        success: function(data) {
+                            if (data == true) {
+                                alert("提交成功！");
+                                history.go(-1);
+                            } else {
+                                alert("提交失败");
+                            }
+                        }
+                    })
+                }
+            })
+
+
+        } else {
+            alert("NOT SUPPORT LocalStorge!");
+            // window.location.href = "goOutRequest.html";
+        }
+    });
+</script>

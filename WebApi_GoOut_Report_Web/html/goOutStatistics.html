@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>外出报备统计</title>
+    <link rel="stylesheet" href="../css/layui.css" />
+    <link rel="stylesheet" href="../css/common.css" />
+    <script src="../js/layui.js"></script>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script src="../js/echarts.js"></script>
+</head>
+
+<body>
+    <!-- 老师仅能看到该班级的：管理员可以看见所有的 -->
+    <!-- 老师：按班级查看 按时间查看 查看所有的 -->
+    <blockquote class="layui-elem-quote" style="text-align:center;font-size: 18px;color: white;background: rgb(114, 196, 223);;">
+        外出统计
+    </blockquote>
+    <div class="layui-container">
+        <button type="button" id="btnReturn" class="layui-btn layui-btn-normal">返回</button>
+        <div class="layui-row">
+            <div class="layui-col-md6">
+                <div id="main" style="width: 460px;height:400px;margin-top: 20px;"></div>
+            </div>
+            <div class="layui-col-md6">
+                <div id="main2" style="width: 460px;height:400px;margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+<script type="text/javascript">
+    $(function() {
+        $("#btnReturn").click(function() {
+            history.go(-1)
+        })
+        if (window.localStorage) { //存储变量的值 
+            var teacherid = localStorage.getItem("myteacherid");
+            $.get("https://localhost:44348/api/Records/getOutCounts?TID=" + teacherid, function(data) {
+                console.log(data);
+                var Xdata = [];
+                var Sdata = [];
+                for (var i = 0; i < data.length; i++) {
+                    // var item = data[i];
+                    Xdata.push(data[i].ClassName);
+                    Sdata.push(data[i].OutCount);
+                }
+                // 基于准备好的dom，初始化echarts实例
+                var myChart = echarts.init(document.getElementById('main'));
+                // var myChart2 = echarts.init(document.getElementById('main2'));
+
+                // 指定图表的配置项和数据
+                var option = {
+                    title: {
+                        text: '学生外出报备情况'
+                    },
+                    tooltip: {},
+                    legend: {
+                        data: ['学生外出次数']
+                    },
+                    xAxis: {
+                        data: Xdata
+                    },
+                    yAxis: {},
+                    series: [{
+                        name: '学生外出次数',
+                        type: 'bar',
+                        data: Sdata
+                    }]
+                };
+
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option); // myChart2.setOption(option);
+            });
+        } else {
+            alert("NOT SUPPORT LocalStorge!");
+        }
+
+    })
+</script>

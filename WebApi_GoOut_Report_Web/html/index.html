@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/layui.css" />
+    <link rel="stylesheet" href="../css/common.css" />
+</head>
+<style>
+    .header {
+        background: rgb(114, 196, 223);
+        height: 160px;
+        color: white;
+    }
+    
+    .layui-container {
+        padding-top: 30px;
+    }
+    
+    .titledesc {
+        padding-left: 16px;
+    }
+    
+    #btnGoOutRequest {
+        float: right;
+    }
+</style>
+
+<body>
+    <div class="layui-block">
+        <div class="layui-block header">
+            <div class="layui-container" style="overflow: hidden;">
+                <div class="layui-block">
+                    <div class="layui-inline">
+                        <img src="../images/bgimg.jpg" style="width: 60px;height:60px;border-radius: 60px;" />
+                    </div>
+                    <div class="layui-inline titledesc">
+                        <h2>学生外出报备</h2>
+                        <span>超级管理员；管理员；学校管理员；研究生；学院学生；</span>
+                    </div>
+
+                </div>
+                <div id="student">
+                </div>
+                <div id="teacher" style="display: none;">
+                </div>
+                <div class="layui-inline" style="font-size:17px;float: right;margin-top: -8px;">
+                    <button class="layui-btn layui-btn-primary" id="outLogin">退出</button>
+                </div>
+            </div>
+
+        </div>
+        <div class=" layui-block content ">
+            <div class="layui-container ">
+                <div id="stuPermission" style="display: none;">
+                    <blockquote class="layui-elem-quote " style="margin-top: 10px;border-color: rgb(114, 196, 223);; ">
+                        <div class="layui-block " style="overflow: hidden; ">
+                            <span style="float: left;line-height: 40px; ">学生日常外出报备</span>
+                            <span>  <button class="layui-btn layui-btn-normal layui-btn-radius" id="btnGoOutRequest">进入</button></span>
+                        </div>
+                    </blockquote>
+                    <blockquote class="layui-elem-quote " style="margin-top: 10px;border-color: rgb(114, 196, 223);; ">
+                        <div class="layui-block" style="overflow: hidden; ">
+                            <span style="float: left;line-height: 40px; ">外出报备记录</span>
+                            <span>  <button id="btnRecords" class="layui-btn layui-btn-normal layui-btn-radius " style="float: right; ">查看</button></span>
+                        </div>
+                    </blockquote>
+                </div>
+                <!-- 权限：仅限老师 -->
+                <div id="teacherPermission" style="display: none;">
+                    <blockquote class="layui-elem-quote " style="margin-top: 10px;border-color: rgb(114, 196, 223);; ">
+                        <div class="layui-block " style="overflow: hidden; ">
+                            <span style="float: left;line-height: 40px; ">学生外出报备记录</span>
+                            <span><button id="btnRecordsTeacher" class="layui-btn layui-btn-normal layui-btn-radius " style="float: right; ">查看</button></span>
+                        </div>
+                    </blockquote>
+                    <blockquote id="perPermission" class="layui-elem-quote " style="margin-top: 10px;border-color: rgb(114, 196, 223);; ">
+                        <div class="layui-block " style="overflow: hidden; ">
+                            <span style="float: left;line-height: 40px; ">外出报备记录统计</span>
+                            <span><button id="btnStatistics" class="layui-btn layui-btn-normal layui-btn-radius " style="float: right; ">查看</button></span>
+                        </div>
+                    </blockquote>
+                </div>
+                <!--管理员-->
+                <div id="adminPermission" style="display: none;">
+                    <blockquote class="layui-elem-quote " style="margin-top: 10px;border-color: rgb(114, 196, 223);; ">
+                        <div class="layui-block " style="overflow: hidden; ">
+                            <span style="float: left;line-height: 40px; ">学生外出报备记录(所有)</span>
+                            <span><button id="btnRecordsAdmin" class="layui-btn layui-btn-normal layui-btn-radius " style="float: right; ">查看</button></span>
+                        </div>
+                    </blockquote>
+                    <blockquote class="layui-elem-quote " style="margin-top: 10px;border-color: rgb(114, 196, 223);; ">
+                        <div class="layui-block " style="overflow: hidden; ">
+                            <span style="float: left;line-height: 40px; ">外出报备记录统计(所有)</span>
+                            <span><button id="btnStatisticsAdmin" class="layui-btn layui-btn-normal layui-btn-radius " style="float: right; ">查看</button></span>
+                        </div>
+                    </blockquote>
+                    <blockquote class="layui-elem-quote " style="margin-top: 10px;border-color: rgb(114, 196, 223);; ">
+                        <div class="layui-block " style="overflow: hidden; ">
+                            <span style="float: left;line-height: 40px; ">学生信息管理</span>
+                            <span><button id="btnStuinfoAdmin" class="layui-btn layui-btn-normal layui-btn-radius " style="float: right; ">查看</button></span>
+                        </div>
+                    </blockquote>
+                    <blockquote class="layui-elem-quote " style="margin-top: 10px;border-color: rgb(114, 196, 223);; ">
+                        <div class="layui-block " style="overflow: hidden; ">
+                            <span style="float: left;line-height: 40px; ">老师信息管理</span>
+                            <span><button id="btnTeainfoAdmin" class="layui-btn layui-btn-normal layui-btn-radius " style="float: right; ">查看</button></span>
+                        </div>
+                    </blockquote>
+                </div>
+                <!--  -->
+                <blockquote class="layui-elem-quote " style="margin-top: 10px;border-color: orange ">
+                    <div class="layui-block " style="overflow: hidden; ">
+                        <span style="float: left;line-height: 40px; ">服务说明</span>
+                        <hr>
+                        <span style="color:gray ">
+                           本应用仅为学生外出行程信息备案。
+                        </span>
+                        <span style="color:gray ">学生请假须按学校有关规定执行。</span>
+                    </div>
+                </blockquote>
+            </div>
+        </div>
+</body>
+
+</html>
+<script src=" ../js/layui.js "></script>
+<script src="../js/jquery-3.6.0.min.js "></script>
+
+<script>
+    //判断是否从login界面进入的
+    // var referrer = document.referrer;
+    // alert(referrer);
+    $(function() {
+
+        $("#btnRecords").click(function() {
+            window.location = "goOutRecord.html";
+        });
+        $("#btnStatistics").click(function() {
+            window.location = "goOutStatistics.html";
+        });
+
+
+        function parseUrl() {
+            var url = location.href;
+            var i = url.indexOf('?');
+            if (i == -1) return;
+            var querystr = url.substr(i + 1);
+            var arr1 = querystr.split('&');
+            var arr2 = new Object();
+            for (i in arr1) {
+                var ta = arr1[i].split('=');
+                arr2[ta[0]] = ta[1];
+            }
+            return arr2;
+        }
+        var v = parseUrl(); //解析所有参数
+        console.log(v['UID']);
+
+        //  alert(v['UID']); 
+        $("#outLogin").click(function() {
+            window.location = "login.html";
+        })
+        if (v['RID'] == "1") {
+            var myusername, myuserid, myteacher, myteacherid;
+            $.ajax({
+                    url: 'https://localhost:44348/api/User/GetUserInfo',
+                    type: 'post',
+                    contentType: 'application/x-www-form-urlencoded',
+                    data: {
+                        "RID": v['RID'],
+                        "UID": v['UID']
+                    },
+                    success: function(data) {
+                        var role = JSON.stringify(data);
+                        var jsonList = eval("(" + role + ")");
+                        if (jsonList.Username == null) {
+                            window.location.href = "error.html";
+                        }
+                        console.log(jsonList);
+                        $("#student").html(`<div class="layui-block" style="padding-top: 10px;">
+                        <span>ID：</span>
+                        <span id="txtStuID">${jsonList.UID}</span>
+                    </div>
+                    <div class="layui-inline" style="font-size:17px;padding-top: 10px;float: left;">
+                        <span id="txtStuname">${jsonList.Username}</span>
+                        <span id="txtDept">${jsonList.ClassID.DeptName}</span>
+                        <span id="txtClass">${jsonList.ClassID.ClassType}</span>
+                        <span id="txtClass">${jsonList.ClassID.ClassName}</span>
+                    </div>`);
+                        $("#stuPermission").css("display", "block");
+                        $("#teacherPermission").css("display", "none");
+                        myuserid = jsonList.UID;
+                        myusername = jsonList.Username;
+                        myteacher = jsonList.ClassID.TID.TeacherName;
+                        myteacherid = jsonList.ClassID.TID.TID;
+
+                    }
+                })
+                //提交报备
+            $("#btnGoOutRequest").click(function() {
+                if (window.localStorage) { //存储变量的值 
+                    localStorage.setItem("UserName", myusername);
+                    localStorage.setItem("ID", myuserid);
+                    localStorage.setItem("TID", myteacherid);
+                    localStorage.setItem("TeacherName", myteacher);
+                    location.href = 'goOutRequest.html';
+                } else {
+                    alert("NOT SUPPORT LocalStorge!");
+                    // window.location.href = "goOutRequest.html";
+                }
+            });
+            $("#btnRecords").click(function() {
+                if (window.localStorage) { //存储变量的值 
+                    localStorage.setItem("myuserid", myuserid);
+                    location.href = 'goOutRecord.html';
+                } else {
+                    alert("NOT SUPPORT LocalStorge!");
+                    // window.location.href = "goOutRequest.html";
+                }
+            })
+
+        } else if (v["RID"] == "2") {
+            var tid;
+            $.ajax({
+                url: 'https://localhost:44348/api/User/GetOneTeachers',
+                type: 'post',
+                contentType: 'application/x-www-form-urlencoded',
+                data: {
+                    "RID": v['RID'],
+                    "UID": v['UID']
+                },
+                success: function(data) {
+                    var role = JSON.stringify(data);
+                    var jsonList = eval("(" + role + ")");
+                    console.log(jsonList);
+                    if (jsonList.TeacherName == null) {
+                        window.location.href = "error.html";
+                    }
+                    $("#teacher").css("display", "block");
+                    $("#teacher").html(`<div class="layui-block" style="padding-top: 10px;">
+                        <span>ID：</span>
+                        <span>${jsonList.TID}</span>
+                    </div>
+                    <div class="layui-inline" style="font-size:17px;padding-top: 10px;float: left;">
+                        <span>${jsonList.TeacherName}</span>
+                        <span>${jsonList.Sex}</span>
+                        <span>${jsonList.RID.RoleName}</span>
+                    </div>`);
+                    $("#stuPermission").css("display", "none");
+                    $("#teacherPermission").css("display", "block");
+                    tid = jsonList.TID;
+                }
+            })
+            $("#btnRecordsTeacher").click(function() {
+                if (window.localStorage) { //存储变量的值 
+                    localStorage.setItem("myteacherid", tid);
+                    location.href = 'StuRecord.html';
+                } else {
+                    alert("NOT SUPPORT LocalStorge!");
+                    // window.location.href = "goOutRequest.html";
+                }
+            })
+        } else {
+            var tid;
+            $.ajax({
+                url: 'https://localhost:44348/api/User/GetOneTeachers',
+                type: 'post',
+                contentType: 'application/x-www-form-urlencoded',
+                data: {
+                    "RID": v['RID'],
+                    "UID": v['UID']
+                },
+                success: function(data) {
+                    var role = JSON.stringify(data);
+                    var jsonList = eval("(" + role + ")");
+                    console.log(jsonList);
+                    if (jsonList.TeacherName == null) {
+                        window.location.href = "error.html";
+                    }
+                    $("#teacher").css("display", "block");
+                    $("#teacher").html(`<div class="layui-block" style="padding-top: 10px;">
+                        <span>ID：</span>
+                        <span>${jsonList.TID}</span>
+                    </div>
+                    <div class="layui-inline" style="font-size:17px;padding-top: 10px;float: left;">
+                        <span>${jsonList.TeacherName}</span>
+                        <span>${jsonList.Sex}</span>
+                        <span>${jsonList.RID.RoleName}</span>
+                    </div>`);
+                    $("#stuPermission").css("display", "none");
+                    $("#teacherPermission").css("display", "none");
+                    $("#adminPermission").css("display", "block");
+                    tid = jsonList.TID;
+                }
+            })
+            $("#btnRecordsAdmin").click(function() {
+                if (window.localStorage) { //存储变量的值 
+                    localStorage.setItem("myteacherid", tid);
+                    location.href = 'goOutAllStuRecord.html';
+                } else {
+                    alert("NOT SUPPORT LocalStorge!");
+                }
+            });
+            $("#btnStatisticsAdmin").click(function() {
+                if (window.localStorage) { //存储变量的值 
+                    localStorage.setItem("myteacherid", tid);
+                    location.href = 'goOutAllStatistics.html';
+                } else {
+                    alert("NOT SUPPORT LocalStorge!");
+                }
+            });
+            $("#btnStuinfoAdmin").click(function() {
+                if (window.localStorage) { //存储变量的值 
+                    localStorage.setItem("myteacherid", tid);
+                    location.href = 'AllStuInfo.html';
+                } else {
+                    alert("NOT SUPPORT LocalStorge!");
+                }
+            });
+            $("#btnTeainfoAdmin").click(function() {
+                if (window.localStorage) { //存储变量的值 
+                    localStorage.setItem("myteacherid", tid);
+                    location.href = 'AllTeacherInfo.html';
+                } else {
+                    alert("NOT SUPPORT LocalStorge!");
+
+                }
+            });
+        }
+
+    });
+</script>
